@@ -1,0 +1,64 @@
+@baseUrl = http://localhost:3000
+
+###
+# Сервер працює
+GET {{baseUrl}}/
+
+###
+# Успішна реєстрація
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Ivan Petrenko",
+  "email": "ivan@example.com",
+  "password": "password123",
+  "confirmPassword": "password123"
+}
+
+###
+# Повторний email
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Ivan Petrenko",
+  "email": "ivan@example.com",
+  "password": "password123",
+  "confirmPassword": "password123"
+}
+
+###
+# Відсутнє поле
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Ivan Petrenko",
+  "email": "empty-password@example.com",
+  "confirmPassword": "password123"
+}
+
+###
+# Паролі не збігаються
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Ivan Petrenko",
+  "email": "wrong-confirm@example.com",
+  "password": "password123",
+  "confirmPassword": "password456"
+}
+
+###
+# Некоректний email
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Ivan Petrenko",
+  "email": "wrong-email",
+  "password": "password123",
+  "confirmPassword": "password123"
+}
