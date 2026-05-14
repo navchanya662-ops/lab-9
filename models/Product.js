@@ -30,6 +30,11 @@ const productSchema = new mongoose.Schema({
     min: [0, 'Кількість на складі не може бути відʼємною'],
     default: 0
   },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now
