@@ -18,9 +18,11 @@ app.use('/api/auth', authRoutes);
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'API онлайн-магазину для лабораторної роботи 9',
+    message: 'API онлайн-магазину для лабораторної роботи 10',
     endpoints: {
-      auth: '/api/auth/register'
+      register: '/api/auth/register',
+      login: '/api/auth/login',
+      me: '/api/auth/me'
     }
   });
 });

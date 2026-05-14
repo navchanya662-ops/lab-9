@@ -1,7 +1,7 @@
 {
-  "name": "lab-9",
+  "name": "lab-10",
   "version": "1.0.0",
-  "description": "Lab 9: user registration with bcrypt and MongoDB.",
+  "description": "Lab 10: JWT authorization for an online shop API.",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -15,6 +15,7 @@
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.1",
     "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.4.1"
   },
   "devDependencies": {
