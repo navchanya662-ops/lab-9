@@ -1,24 +1,14 @@
 @baseUrl = http://localhost:3000
 @token =
+@adminToken =
+@productId =
 
 ###
 # Сервер працює
 GET {{baseUrl}}/
 
 ###
-# ЛР9. Реєстрація користувача
-POST {{baseUrl}}/api/auth/register
-Content-Type: application/json
-
-{
-  "name": "Ivan Petrenko",
-  "email": "ivan@example.com",
-  "password": "password123",
-  "confirmPassword": "password123"
-}
-
-###
-# ЛР10. Успішний вхід
+# Вхід користувача
 POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
@@ -28,25 +18,65 @@ Content-Type: application/json
 }
 
 ###
-# ЛР10. Невірний пароль
-POST {{baseUrl}}/api/auth/login
+# Публічний список товарів без токена
+GET {{baseUrl}}/api/products
+
+###
+# Створення товару без токена
+POST {{baseUrl}}/api/products
 Content-Type: application/json
 
 {
-  "email": "ivan@example.com",
-  "password": "wrongpassword"
+  "name": "Ноутбук Lenovo",
+  "description": "Ноутбук для навчання та роботи",
+  "price": 25000,
+  "category": "Електроніка",
+  "stock": 12
 }
 
 ###
-# ЛР10. Профіль з токеном
-GET {{baseUrl}}/api/auth/me
+# Створення товару з токеном user
+POST {{baseUrl}}/api/products
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Ноутбук Lenovo",
+  "description": "Ноутбук для навчання та роботи",
+  "price": 25000,
+  "category": "Електроніка",
+  "stock": 12
+}
+
+###
+# Отримати один товар
+GET {{baseUrl}}/api/products/{{productId}}
+
+###
+# Оновити товар з токеном user
+PUT {{baseUrl}}/api/products/{{productId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "price": 23999,
+  "stock": 10
+}
+
+###
+# Видалити товар з токеном user, очікується 403
+DELETE {{baseUrl}}/api/products/{{productId}}
 Authorization: Bearer {{token}}
 
 ###
-# ЛР10. Профіль без токена
-GET {{baseUrl}}/api/auth/me
+# Видалити товар з токеном admin, очікується 200
+DELETE {{baseUrl}}/api/products/{{productId}}
+Authorization: Bearer {{adminToken}}
 
 ###
-# ЛР10. Профіль з невірним токеном
-GET {{baseUrl}}/api/auth/me
-Authorization: Bearer wrong.token.value
+# Некоректний id
+GET {{baseUrl}}/api/products/wrong-id
+
+###
+# Неіснуючий маршрут
+GET {{baseUrl}}/api/unknown-route

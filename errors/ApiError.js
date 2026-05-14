@@ -3,6 +3,7 @@ class ApiError extends Error {
     super(message);
     this.statusCode = statusCode;
     this.errors = errors;
+    this.isOperational = true;
   }
 
   static badRequest(message = 'Bad request', errors = null) {
@@ -11,6 +12,10 @@ class ApiError extends Error {
 
   static unauthorized(message = 'Unauthorized') {
     return new ApiError(401, message);
+  }
+
+  static forbidden(message = 'Forbidden') {
+    return new ApiError(403, message);
   }
 
   static conflict(message = 'Conflict') {

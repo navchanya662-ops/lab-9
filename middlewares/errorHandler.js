@@ -2,13 +2,16 @@ const ApiError = require('../errors/ApiError');
 
 module.exports = (err, req, res, next) => {
   let statusCode = err.statusCode || 500;
-  let message = err.message || 'Помилка сервера';
+  let message = err.isOperational ? err.message : 'Внутрішня помилка сервера';
   let errors = err.errors || [];
 
   if (err instanceof ApiError) {
     statusCode = err.statusCode;
     message = err.message;
     errors = err.errors || [];
+  } else if (err.isOperational) {
+    statusCode = err.statusCode;
+    message = err.message;
   } else if (err.name === 'CastError') {
     statusCode = 400;
     message = 'Некоректний формат id';
