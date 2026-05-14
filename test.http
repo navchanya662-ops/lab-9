@@ -1,11 +1,12 @@
 @baseUrl = http://localhost:3000
+@token =
 
 ###
 # Сервер працює
 GET {{baseUrl}}/
 
 ###
-# Успішна реєстрація
+# ЛР9. Реєстрація користувача
 POST {{baseUrl}}/api/auth/register
 Content-Type: application/json
 
@@ -17,48 +18,35 @@ Content-Type: application/json
 }
 
 ###
-# Повторний email
-POST {{baseUrl}}/api/auth/register
+# ЛР10. Успішний вхід
+POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-  "name": "Ivan Petrenko",
   "email": "ivan@example.com",
-  "password": "password123",
-  "confirmPassword": "password123"
+  "password": "password123"
 }
 
 ###
-# Відсутнє поле
-POST {{baseUrl}}/api/auth/register
+# ЛР10. Невірний пароль
+POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-  "name": "Ivan Petrenko",
-  "email": "empty-password@example.com",
-  "confirmPassword": "password123"
+  "email": "ivan@example.com",
+  "password": "wrongpassword"
 }
 
 ###
-# Паролі не збігаються
-POST {{baseUrl}}/api/auth/register
-Content-Type: application/json
-
-{
-  "name": "Ivan Petrenko",
-  "email": "wrong-confirm@example.com",
-  "password": "password123",
-  "confirmPassword": "password456"
-}
+# ЛР10. Профіль з токеном
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{token}}
 
 ###
-# Некоректний email
-POST {{baseUrl}}/api/auth/register
-Content-Type: application/json
+# ЛР10. Профіль без токена
+GET {{baseUrl}}/api/auth/me
 
-{
-  "name": "Ivan Petrenko",
-  "email": "wrong-email",
-  "password": "password123",
-  "confirmPassword": "password123"
-}
+###
+# ЛР10. Профіль з невірним токеном
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer wrong.token.value
