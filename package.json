@@ -1,7 +1,7 @@
 {
-  "name": "lab-12",
+  "name": "lab-13",
   "version": "1.0.0",
-  "description": "Lab 12: modular MVC refactor with service layer.",
+  "description": "Lab 13: client forms with fetch and localStorage.",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",

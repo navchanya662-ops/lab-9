@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вхід</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="page">
+    <nav class="nav">
+      <a href="/index.html">Товари</a>
+      <a href="/register.html">Реєстрація</a>
+    </nav>
+    <section class="panel">
+      <h1>Вхід</h1>
+      <form id="loginForm">
+        <label>Email <input type="email" id="email" required></label>
+        <label>Пароль <input type="password" id="password" required></label>
+        <button type="submit">Увійти</button>
+      </form>
+      <p id="message" class="message"></p>
+    </section>
+  </main>
+  <script>
+    const form = document.getElementById('loginForm');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const body = {
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value
+      };
+
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        message.textContent = data.message;
+        message.className = 'message error';
+        return;
+      }
+
+      localStorage.setItem('token', data.data.token);
+      window.location.href = '/index.html';
+    });
+  </script>
+</body>
+</html>

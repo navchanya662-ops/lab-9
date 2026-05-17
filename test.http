@@ -1,75 +1,21 @@
 @baseUrl = http://localhost:3000
-@ownerToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMDQ0MDI5ZGZjZTg4OTI0YWE5YjZmNCIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzc5MDI0NDY1LCJleHAiOjE3Nzk2MjkyNjV9.ChgqVwo78dslYaYhU-1Pu8jS9GqXI2tm-7r0NThCU6A
-@otherUserToken =
-@adminToken =
-@expiredToken =
-@productId =
 
 ###
-# Сервер працює
+# Сервер і клієнт
 GET {{baseUrl}}/
 
 ###
-# Login власника товару
-POST {{baseUrl}}/api/auth/login
-Content-Type: application/json
-
-{
-  "email": "ivan@example.com",
-  "password": "password123"
-}
+# Сторінка реєстрації
+GET {{baseUrl}}/register.html
 
 ###
-# Створити товар токеном власника
-POST {{baseUrl}}/api/products
-Authorization: Bearer {{ownerToken}}
-Content-Type: application/json
-
-{
-  "name": "Ноутбук Lenovo",
-  "description": "Ноутбук для навчання та роботи",
-  "price": 25000,
-  "category": "Електроніка",
-  "stock": 12
-}
+# Сторінка входу
+GET {{baseUrl}}/login.html
 
 ###
-# Login іншого користувача
-POST {{baseUrl}}/api/auth/login
-Content-Type: application/json
-
-{
-  "email": "other@example.com",
-  "password": "password123"
-}
+# Головна сторінка зі списком товарів
+GET {{baseUrl}}/index.html
 
 ###
-# ЛР12. Оновлення чужого товару, очікується 403
-PUT {{baseUrl}}/api/products/{{productId}}
-Authorization: Bearer {{otherUserToken}}
-Content-Type: application/json
-
-{
-  "price": 19999
-}
-
-###
-# ЛР12. Оновлення свого товару, очікується 200
-PUT {{baseUrl}}/api/products/{{productId}}
-Authorization: Bearer {{ownerToken}}
-Content-Type: application/json
-
-{
-  "price": 23999,
-  "stock": 10
-}
-
-###
-# ЛР12. Прострочений токен, очікується 401
-GET {{baseUrl}}/api/auth/me
-Authorization: Bearer {{expiredToken}}
-
-###
-# ЛР12. Невірний токен, очікується 401
-GET {{baseUrl}}/api/auth/me
-Authorization: Bearer wrong.token.value
+# Форма створення товару
+GET {{baseUrl}}/create.html

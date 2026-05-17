@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Додати товар</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="page">
+    <nav class="nav">
+      <a href="/index.html">Товари</a>
+      <button id="logoutBtn" type="button">Вийти</button>
+    </nav>
+
+    <section class="panel">
+      <h1>Додати товар</h1>
+      <form id="createForm">
+        <label>Назва <input type="text" id="name" required></label>
+        <label>Опис <textarea id="description" required></textarea></label>
+        <label>Ціна <input type="number" id="price" min="0" required></label>
+        <label>Категорія <input type="text" id="category" required></label>
+        <label>Кількість на складі <input type="number" id="stock" min="0" required></label>
+        <button type="submit">Створити товар</button>
+      </form>
+      <p id="message" class="message"></p>
+    </section>
+  </main>
+
+  <script>
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      window.location.href = '/login.html';
+    }
+
+    const form = document.getElementById('createForm');
+    const message = document.getElementById('message');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('token');
+      window.location.href = '/login.html';
+    });
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const body = {
+        name: document.getElementById('name').value,
+        description: document.getElementById('description').value,
+        price: Number(document.getElementById('price').value),
+        category: document.getElementById('category').value,
+        stock: Number(document.getElementById('stock').value)
+      };
+
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(body)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        message.textContent = data.message;
+        message.className = 'message error';
+        return;
+      }
+
+      message.textContent = 'Товар створено';
+      message.className = 'message success';
+      setTimeout(() => {
+        window.location.href = '/index.html';
+      }, 800);
+    });
+  </script>
+</body>
+</html>

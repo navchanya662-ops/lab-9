@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Реєстрація</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="page">
+    <nav class="nav">
+      <a href="/index.html">Товари</a>
+      <a href="/login.html">Вхід</a>
+    </nav>
+    <section class="panel">
+      <h1>Реєстрація</h1>
+      <form id="registerForm">
+        <label>Ім'я <input type="text" id="name" required></label>
+        <label>Email <input type="email" id="email" required></label>
+        <label>Пароль <input type="password" id="password" minlength="8" required></label>
+        <label>Підтвердження пароля <input type="password" id="confirmPassword" minlength="8" required></label>
+        <button type="submit">Зареєструватися</button>
+      </form>
+      <p id="message" class="message"></p>
+    </section>
+  </main>
+  <script>
+    const form = document.getElementById('registerForm');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const body = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value,
+        confirmPassword: document.getElementById('confirmPassword').value
+      };
+
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        message.textContent = data.message;
+        message.className = 'message error';
+        return;
+      }
+
+      localStorage.setItem('token', data.data.token);
+      message.textContent = 'Реєстрація успішна';
+      message.className = 'message success';
+      setTimeout(() => {
+        window.location.href = '/index.html';
+      }, 800);
+    });
+  </script>
+</body>
+</html>
