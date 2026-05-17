@@ -27,6 +27,8 @@ module.exports = (err, req, res, next) => {
     statusCode = 409;
     message = 'Користувач з таким email вже існує';
     errors = [];
+  } else if (err.message) {
+    message = err.message;
   }
 
   console.error(`[${new Date().toISOString()}] ${statusCode} ${message}`);

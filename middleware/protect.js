@@ -1,37 +1,45 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const ApiError = require('../errors/ApiError');
+const AppError = require('../utils/AppError');
+const catchAsync = require('../utils/catchAsync');
 
-const protect = async (req, res, next) => {
-  try {
-    const authHeader = req.headers.authorization;
+const protect = catchAsync(async (req, res, next) => {
+  const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw ApiError.unauthorized('Доступ заборонено. Токен відсутній');
-    }
-
-    const token = authHeader.split(' ')[1];
-
-    if (!process.env.JWT_SECRET) {
-      throw new Error('JWT_SECRET не задано в .env');
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
-
-    if (!user) {
-      throw ApiError.unauthorized('Користувача не знайдено');
-    }
-
-    req.user = user;
-    next();
-  } catch (err) {
-    if (err instanceof ApiError) {
-      return next(err);
-    }
-
-    return next(ApiError.unauthorized('Недійсний токен'));
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return next(new AppError('Доступ заборонено. Токен відсутній', 401));
   }
-};
+
+  const token = authHeader.split(' ')[1];
+
+  if (!process.env.JWT_SECRET) {
+    return next(new AppError('JWT_SECRET не задано в .env', 500));
+  }
+
+  let decoded;
+
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') {
+      return next(new AppError('Термін дії токена вийшов. Увійдіть знову', 401));
+    }
+
+    if (err.name === 'JsonWebTokenError') {
+      return next(new AppError('Невірний токен. Увійдіть знову', 401));
+    }
+
+    return next(err);
+  }
+
+  const user = await User.findById(decoded.id);
+
+  if (!user) {
+    return next(new AppError('Користувача не знайдено', 401));
+  }
+
+  req.user = user;
+  next();
+});
 
 module.exports = protect;
