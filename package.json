@@ -1,7 +1,7 @@
 {
-  "name": "lab-11",
+  "name": "lab-12",
   "version": "1.0.0",
-  "description": "Lab 11: protected product CRUD for an online shop API.",
+  "description": "Lab 12: modular MVC refactor with service layer.",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",

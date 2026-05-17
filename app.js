@@ -20,7 +20,7 @@ app.use('/api/products', productRoutes);
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'API онлайн-магазину для лабораторної роботи 11',
+    message: 'API онлайн-магазину для лабораторної роботи 12',
     endpoints: {
       register: '/api/auth/register',
       login: '/api/auth/login',

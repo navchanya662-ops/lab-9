@@ -1,6 +1,8 @@
 @baseUrl = http://localhost:3000
-@token =
+@ownerToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMDQ0MDI5ZGZjZTg4OTI0YWE5YjZmNCIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzc5MDI0NDY1LCJleHAiOjE3Nzk2MjkyNjV9.ChgqVwo78dslYaYhU-1Pu8jS9GqXI2tm-7r0NThCU6A
+@otherUserToken =
 @adminToken =
+@expiredToken =
 @productId =
 
 ###
@@ -8,7 +10,7 @@
 GET {{baseUrl}}/
 
 ###
-# Вхід користувача
+# Login власника товару
 POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
@@ -18,12 +20,9 @@ Content-Type: application/json
 }
 
 ###
-# Публічний список товарів без токена
-GET {{baseUrl}}/api/products
-
-###
-# Створення товару без токена
+# Створити товар токеном власника
 POST {{baseUrl}}/api/products
+Authorization: Bearer {{ownerToken}}
 Content-Type: application/json
 
 {
@@ -35,27 +34,29 @@ Content-Type: application/json
 }
 
 ###
-# Створення товару з токеном user
-POST {{baseUrl}}/api/products
-Authorization: Bearer {{token}}
+# Login іншого користувача
+POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-  "name": "Ноутбук Lenovo",
-  "description": "Ноутбук для навчання та роботи",
-  "price": 25000,
-  "category": "Електроніка",
-  "stock": 12
+  "email": "other@example.com",
+  "password": "password123"
 }
 
 ###
-# Отримати один товар
-GET {{baseUrl}}/api/products/{{productId}}
-
-###
-# Оновити товар з токеном user
+# ЛР12. Оновлення чужого товару, очікується 403
 PUT {{baseUrl}}/api/products/{{productId}}
-Authorization: Bearer {{token}}
+Authorization: Bearer {{otherUserToken}}
+Content-Type: application/json
+
+{
+  "price": 19999
+}
+
+###
+# ЛР12. Оновлення свого товару, очікується 200
+PUT {{baseUrl}}/api/products/{{productId}}
+Authorization: Bearer {{ownerToken}}
 Content-Type: application/json
 
 {
@@ -64,19 +65,11 @@ Content-Type: application/json
 }
 
 ###
-# Видалити товар з токеном user, очікується 403
-DELETE {{baseUrl}}/api/products/{{productId}}
-Authorization: Bearer {{token}}
+# ЛР12. Прострочений токен, очікується 401
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{expiredToken}}
 
 ###
-# Видалити товар з токеном admin, очікується 200
-DELETE {{baseUrl}}/api/products/{{productId}}
-Authorization: Bearer {{adminToken}}
-
-###
-# Некоректний id
-GET {{baseUrl}}/api/products/wrong-id
-
-###
-# Неіснуючий маршрут
-GET {{baseUrl}}/api/unknown-route
+# ЛР12. Невірний токен, очікується 401
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer wrong.token.value
