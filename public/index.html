@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Онлайн-магазин</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="page">
+    <nav class="nav">
+      <a href="/index.html">Товари</a>
+      <a href="/create.html">Додати товар</a>
+      <a href="/login.html">Вхід</a>
+      <a href="/register.html">Реєстрація</a>
+      <button id="logoutBtn" type="button">Вийти</button>
+    </nav>
+
+    <section class="panel">
+      <h1>Товари</h1>
+      <p id="message" class="message"></p>
+      <div id="productList" class="grid"></div>
+    </section>
+  </main>
+
+  <script>
+    const list = document.getElementById('productList');
+    const message = document.getElementById('message');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('token');
+      window.location.href = '/login.html';
+    });
+
+    const escapeHtml = (value) => String(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+
+    const renderProducts = (products) => {
+      if (!products.length) {
+        list.innerHTML = '<p>Товарів поки немає.</p>';
+        return;
+      }
+
+      list.innerHTML = products.map((product) => `
+        <article class="card">
+          <h2>${escapeHtml(product.name)}</h2>
+          <p>${escapeHtml(product.description)}</p>
+          <dl>
+            <dt>Ціна</dt>
+            <dd>${product.price}</dd>
+            <dt>Категорія</dt>
+            <dd>${escapeHtml(product.category)}</dd>
+            <dt>На складі</dt>
+            <dd>${product.stock}</dd>
+          </dl>
+        </article>
+      `).join('');
+    };
+
+    const loadProducts = async () => {
+      const response = await fetch('/api/products');
+      const data = await response.json();
+
+      if (!response.ok) {
+        message.textContent = data.message;
+        message.className = 'message error';
+        return;
+      }
+
+      renderProducts(data.data.products);
+    };
+
+    loadProducts();
+  </script>
+</body>
+</html>

@@ -13,6 +13,7 @@ const errorHandler = require('./middlewares/errorHandler');
 const app = express();
 
 app.use(express.json());
+app.use(express.static('public'));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -20,8 +21,9 @@ app.use('/api/products', productRoutes);
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'API онлайн-магазину для лабораторної роботи 12',
+    message: 'API онлайн-магазину для лабораторної роботи 13',
     endpoints: {
+      client: '/index.html',
       register: '/api/auth/register',
       login: '/api/auth/login',
       me: '/api/auth/me',
