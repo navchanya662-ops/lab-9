@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Додати товар</title>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main class="page">
     <nav class="nav">
-      <a href="/index.html">Товари</a>
+      <a href="index.html">Товари</a>
       <button id="logoutBtn" type="button">Вийти</button>
     </nav>
 
@@ -28,19 +28,33 @@
   </main>
 
   <script>
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-      window.location.href = '/login.html';
-    }
-
+    const API_URL = `${window.location.protocol}//${window.location.hostname}:3000`;
     const form = document.getElementById('createForm');
     const message = document.getElementById('message');
     const logoutBtn = document.getElementById('logoutBtn');
 
-    logoutBtn.addEventListener('click', () => {
-      localStorage.removeItem('token');
-      window.location.href = '/login.html';
+    const checkAuth = async () => {
+      const response = await fetch(`${API_URL}/api/auth/me`, {
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        message.textContent = data?.message || 'Для створення товару потрібно увійти в систему';
+        message.className = 'message error';
+        return;
+      }
+
+      message.textContent = '';
+      message.className = 'message';
+    };
+
+    logoutBtn.addEventListener('click', async () => {
+      await fetch(`${API_URL}/api/auth/logout`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      window.location.href = 'login.html';
     });
 
     form.addEventListener('submit', async (event) => {
@@ -54,11 +68,11 @@
         stock: Number(document.getElementById('stock').value)
       };
 
-      const response = await fetch('/api/products', {
+      const response = await fetch(`${API_URL}/api/products`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(body)
       });
@@ -74,9 +88,11 @@
       message.textContent = 'Товар створено';
       message.className = 'message success';
       setTimeout(() => {
-        window.location.href = '/index.html';
+        window.location.href = 'index.html';
       }, 800);
     });
+
+    checkAuth();
   </script>
 </body>
 </html>

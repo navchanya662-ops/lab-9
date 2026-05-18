@@ -4,6 +4,8 @@ const dns = require('dns');
 dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 const express = require('express');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const connectDB = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
@@ -12,8 +14,23 @@ const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
+const allowedOrigins = [
+  process.env.CLIENT_URL || 'http://localhost:5500',
+  'http://127.0.0.1:5500'
+];
+
+ app.use(cors({
+   origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+       return callback(null, true);
+     }
+
+    return callback(new Error(`CORS: origin ${origin} не дозволено`));
+  },
+  credentials: true
+}));
 app.use(express.json());
-app.use(express.static('public'));
+app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -21,11 +38,11 @@ app.use('/api/products', productRoutes);
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'API онлайн-магазину для лабораторної роботи 13',
+    message: 'API онлайн-магазину для лабораторної роботи 14',
     endpoints: {
-      client: '/index.html',
       register: '/api/auth/register',
       login: '/api/auth/login',
+      logout: '/api/auth/logout',
       me: '/api/auth/me',
       products: '/api/products'
     }

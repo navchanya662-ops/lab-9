@@ -4,15 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Онлайн-магазин</title>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main class="page">
     <nav class="nav">
-      <a href="/index.html">Товари</a>
-      <a href="/create.html">Додати товар</a>
-      <a href="/login.html">Вхід</a>
-      <a href="/register.html">Реєстрація</a>
+      <a href="index.html">Товари</a>
+      <a href="create.html">Додати товар</a>
+      <a href="login.html">Вхід</a>
+      <a href="register.html">Реєстрація</a>
       <button id="logoutBtn" type="button">Вийти</button>
     </nav>
 
@@ -24,13 +24,17 @@
   </main>
 
   <script>
+    const API_URL = `${window.location.protocol}//${window.location.hostname}:3000`;
     const list = document.getElementById('productList');
     const message = document.getElementById('message');
     const logoutBtn = document.getElementById('logoutBtn');
 
-    logoutBtn.addEventListener('click', () => {
-      localStorage.removeItem('token');
-      window.location.href = '/login.html';
+    logoutBtn.addEventListener('click', async () => {
+      await fetch(`${API_URL}/api/auth/logout`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      window.location.href = 'login.html';
     });
 
     const escapeHtml = (value) => String(value)
@@ -63,7 +67,9 @@
     };
 
     const loadProducts = async () => {
-      const response = await fetch('/api/products');
+      const response = await fetch(`${API_URL}/api/products`, {
+        credentials: 'include'
+      });
       const data = await response.json();
 
       if (!response.ok) {

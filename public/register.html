@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Реєстрація</title>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main class="page">
     <nav class="nav">
-      <a href="/index.html">Товари</a>
-      <a href="/login.html">Вхід</a>
+      <a href="index.html">Товари</a>
+      <a href="login.html">Вхід</a>
     </nav>
     <section class="panel">
       <h1>Реєстрація</h1>
@@ -25,6 +25,7 @@
     </section>
   </main>
   <script>
+    const API_URL = `${window.location.protocol}//${window.location.hostname}:3000`;
     const form = document.getElementById('registerForm');
     const message = document.getElementById('message');
 
@@ -38,8 +39,9 @@
         confirmPassword: document.getElementById('confirmPassword').value
       };
 
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
@@ -52,11 +54,10 @@
         return;
       }
 
-      localStorage.setItem('token', data.data.token);
       message.textContent = 'Реєстрація успішна';
       message.className = 'message success';
       setTimeout(() => {
-        window.location.href = '/index.html';
+        window.location.href = 'index.html';
       }, 800);
     });
   </script>
