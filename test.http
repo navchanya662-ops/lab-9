@@ -1,21 +1,35 @@
 @baseUrl = http://localhost:3000
 
 ###
-# Сервер і клієнт
+# Перевірка API
 GET {{baseUrl}}/
 
 ###
-# Сторінка реєстрації
-GET {{baseUrl}}/register.html
+# Реєстрація встановлює httpOnly cookie
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Cookie User",
+  "email": "cookie-user@example.com",
+  "password": "password123",
+  "confirmPassword": "password123"
+}
 
 ###
-# Сторінка входу
-GET {{baseUrl}}/login.html
+# Вхід встановлює httpOnly cookie
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "cookie-user@example.com",
+  "password": "password123"
+}
 
 ###
-# Головна сторінка зі списком товарів
-GET {{baseUrl}}/index.html
+# Захищений профіль через cookie у браузері або Bearer token у Postman
+GET {{baseUrl}}/api/auth/me
 
 ###
-# Форма створення товару
-GET {{baseUrl}}/create.html
+# Вихід очищає cookie
+POST {{baseUrl}}/api/auth/logout
