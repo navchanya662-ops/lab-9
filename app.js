@@ -38,13 +38,14 @@ app.use('/api/products', productRoutes);
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'API онлайн-магазину для лабораторної роботи 14',
+    message: 'API онлайн-магазину для лабораторної роботи 15',
     endpoints: {
       register: '/api/auth/register',
       login: '/api/auth/login',
       logout: '/api/auth/logout',
       me: '/api/auth/me',
-      products: '/api/products'
+      products: '/api/products',
+      reviews: '/api/products/:productId/reviews'
     }
   });
 });

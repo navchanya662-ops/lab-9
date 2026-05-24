@@ -1,35 +1,126 @@
 @baseUrl = http://localhost:3000
+@baseUrlNoCookie = http://127.0.0.1:3000
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMTMzOTI5ZjRjM2QyNzI4MzIzNDYwYyIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzc5NjQ1NTM3LCJleHAiOjE3ODAyNTAzMzd9.dg2zEEceHUtga8MYDlrQbZ5shRQYPUDAkaHLb70vqsw
+@productId = 6a133991f4c3d2728323460d
+@reviewId = 6a133a3df4c3d2728323460e
 
 ###
 # Перевірка API
 GET {{baseUrl}}/
 
 ###
-# Реєстрація встановлює httpOnly cookie
+# Реєстрація користувача для тестів
+# Якщо користувач уже існує, просто виконай наступний запит login.
 POST {{baseUrl}}/api/auth/register
 Content-Type: application/json
 
 {
-  "name": "Cookie User",
-  "email": "cookie-user@example.com",
+  "name": "Max",
+  "email": "maxlabs@example.com",
   "password": "password123",
   "confirmPassword": "password123"
 }
 
 ###
-# Вхід встановлює httpOnly cookie
+# Вхід користувача.
+# Для запитів нижче встав token вручну у змінну @token зверху.
+# Якщо працюєш через cookie, виконай login і можеш прибрати Authorization headers.
 POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "cookie-user@example.com",
+  "email": "maxlabs@example.com",
   "password": "password123"
 }
 
 ###
-# Захищений профіль через cookie у браузері або Bearer token у Postman
-GET {{baseUrl}}/api/auth/me
+# Підготовка товару для вкладених маршрутів відгуків.
+# Після створення скопіюй _id товару у змінну @productId зверху.
+POST {{baseUrl}}/api/products
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Max",
+  "description": "Тестовий товар для перевірки вкладених маршрутів відгуків",
+  "price": 150,
+  "category": "Test",
+  "stock": 7
+}
 
 ###
-# Вихід очищає cookie
-POST {{baseUrl}}/api/auth/logout
+# 1. Joi: register без name -> 400
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "broken-register@example.com",
+  "password": "password123",
+  "confirmPassword": "password123"
+}
+
+###
+# 2. Joi: login з некоректним email -> 400
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "wrong-email",
+  "password": "password123"
+}
+
+###
+# 3. GET відгуків товару, публічний маршрут -> 200
+GET {{baseUrl}}/api/products/{{productId}}/reviews
+
+###
+# 4. POST відгуку без токена -> 401
+# Використовуємо 127.0.0.1, щоб REST Client не підставив cookie від localhost.
+# @no-cookie-jar
+POST {{baseUrlNoCookie}}/api/products/{{productId}}/reviews
+Content-Type: application/json
+Cookie:
+
+{
+  "rating": 5,
+  "comment": "Дуже якісний товар для тесту"
+}
+
+###
+# 5. POST відгуку з токеном, але rating: 0 -> 400
+POST {{baseUrl}}/api/products/{{productId}}/reviews
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "rating": 0,
+  "comment": "Дуже якісний товар для тесту"
+}
+
+###
+# 6. Успішне створення відгуку -> 201
+# Після створення скопіюй _id відгуку у змінну @reviewId зверху.
+POST {{baseUrl}}/api/products/{{productId}}/reviews
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "rating": 5,
+  "comment": "Дуже якісний товар для тесту"
+}
+
+###
+# 7. Повторний відгук тим самим користувачем -> 400
+POST {{baseUrl}}/api/products/{{productId}}/reviews
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "rating": 4,
+  "comment": "Повторний відгук для перевірки дублювання"
+}
+
+###
+# 8. DELETE відгуку автором -> 200
+DELETE {{baseUrl}}/api/products/{{productId}}/reviews/{{reviewId}}
+Authorization: Bearer {{token}}
