@@ -25,7 +25,14 @@ module.exports = (err, req, res, next) => {
     }));
   } else if (err.code === 11000) {
     statusCode = 409;
-    message = 'Користувач з таким email вже існує';
+    if (err.keyPattern?.product && err.keyPattern?.user) {
+      statusCode = 400;
+      message = 'Ви вже залишили відгук для цього товару';
+    } else if (err.keyPattern?.email) {
+      message = 'Користувач з таким email вже існує';
+    } else {
+      message = 'Запис з такими даними вже існує';
+    }
     errors = [];
   } else if (err.message) {
     message = err.message;
