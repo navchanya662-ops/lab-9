@@ -35,6 +35,17 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 
+app.get('/health', (req, res) => {
+  const mongoose = require('mongoose');
+  const dbOk = mongoose.connection.readyState === 1;
+  res.status(dbOk ? 200 : 503).json({
+    status: dbOk ? 'ok' : 'error',
+    db: dbOk ? 'connected' : 'disconnected',
+    uptime: Math.round(process.uptime()) + 's',
+    env: process.env.NODE_ENV
+  });
+});
+
 app.get('/', (req, res) => {
   res.json({
     success: true,
