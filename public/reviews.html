@@ -56,7 +56,7 @@
     </section>
   </main>
   <script>
-    const API_URL = `${window.location.protocol}//${window.location.hostname}:3000`;
+    const API_URL = window.location.port ? `${window.location.protocol}//${window.location.hostname}:3000` : window.location.origin;
 
     const params    = new URLSearchParams(window.location.search);
     const productId = params.get('productId');
