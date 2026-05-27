@@ -62,6 +62,8 @@
             <dt>На складі</dt>
             <dd>${product.stock}</dd>
           </dl>
+          <a href="reviews.html?productId=${escapeHtml(product._id)}">Переглянути відгуки</a>
+          <a href="review.html?productId=${escapeHtml(product._id)}">Залишити відгук</a>
         </article>
       `).join('');
     };

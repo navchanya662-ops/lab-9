@@ -67,6 +67,42 @@ textarea {
   font: inherit;
 }
 
+input.error {
+  border: 2px solid #b42318;
+  outline: none;
+}
+
+input.valid {
+  border: 2px solid #027a48;
+  outline: none;
+}
+
+.field {
+  display: grid;
+  gap: 4px;
+}
+
+.field-error {
+  color: #b42318;
+  font-size: 12px;
+  min-height: 16px;
+}
+
+#serverErrors p {
+  color: #b42318;
+  margin: 0 0 4px;
+}
+
+#serverErrors {
+  min-height: 0;
+  margin-bottom: 8px;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 textarea {
   min-height: 90px;
   resize: vertical;

@@ -14,51 +14,133 @@
     </nav>
     <section class="panel">
       <h1>Реєстрація</h1>
+      <div id="serverErrors"></div>
       <form id="registerForm">
-        <label>Ім'я <input type="text" id="name" required></label>
-        <label>Email <input type="email" id="email" required></label>
-        <label>Пароль <input type="password" id="password" minlength="8" required></label>
-        <label>Підтвердження пароля <input type="password" id="confirmPassword" minlength="8" required></label>
-        <button type="submit">Зареєструватися</button>
+        <div class="field">
+          <label for="name">Ім'я</label>
+          <input type="text" id="name" required>
+          <span class="field-error" id="nameError"></span>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" required>
+          <span class="field-error" id="emailError"></span>
+        </div>
+        <div class="field">
+          <label for="password">Пароль</label>
+          <input type="password" id="password" required>
+          <span class="field-error" id="passwordError"></span>
+        </div>
+        <div class="field">
+          <label for="confirmPassword">Підтвердження пароля</label>
+          <input type="password" id="confirmPassword" required>
+          <span class="field-error" id="confirmError"></span>
+        </div>
+        <button type="submit" id="submitBtn" disabled>Зареєструватися</button>
       </form>
-      <p id="message" class="message"></p>
     </section>
   </main>
   <script>
     const API_URL = `${window.location.protocol}//${window.location.hostname}:3000`;
-    const form = document.getElementById('registerForm');
-    const message = document.getElementById('message');
 
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
+    const nameInput        = document.getElementById('name');
+    const emailInput       = document.getElementById('email');
+    const passwordInput    = document.getElementById('password');
+    const confirmInput     = document.getElementById('confirmPassword');
+    const submitBtn        = document.getElementById('submitBtn');
+    const serverErrors     = document.getElementById('serverErrors');
 
-      const body = {
-        name: document.getElementById('name').value,
-        email: document.getElementById('email').value,
-        password: document.getElementById('password').value,
-        confirmPassword: document.getElementById('confirmPassword').value
-      };
+    function setError(input, errorId, message) {
+      input.classList.add('error');
+      input.classList.remove('valid');
+      document.getElementById(errorId).textContent = message;
+    }
+
+    function setValid(input, errorId) {
+      input.classList.remove('error');
+      input.classList.add('valid');
+      document.getElementById(errorId).textContent = '';
+    }
+
+    function clearState(input, errorId) {
+      input.classList.remove('error', 'valid');
+      document.getElementById(errorId).textContent = '';
+    }
+
+    function validateAll() {
+      let valid = true;
+
+      if (nameInput.value.length === 0) {
+        clearState(nameInput, 'nameError');
+        valid = false;
+      } else if (nameInput.value.trim().length < 2) {
+        setError(nameInput, 'nameError', "Ім'я має містити мінімум 2 символи");
+        valid = false;
+      } else {
+        setValid(nameInput, 'nameError');
+      }
+
+      if (emailInput.value.length === 0) {
+        clearState(emailInput, 'emailError');
+        valid = false;
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
+        setError(emailInput, 'emailError', 'Введіть коректний email');
+        valid = false;
+      } else {
+        setValid(emailInput, 'emailError');
+      }
+
+      if (passwordInput.value.length === 0) {
+        clearState(passwordInput, 'passwordError');
+        valid = false;
+      } else if (passwordInput.value.length < 8) {
+        setError(passwordInput, 'passwordError', 'Пароль має містити мінімум 8 символів');
+        valid = false;
+      } else {
+        setValid(passwordInput, 'passwordError');
+      }
+
+      if (confirmInput.value.length === 0) {
+        clearState(confirmInput, 'confirmError');
+        valid = false;
+      } else if (confirmInput.value !== passwordInput.value) {
+        setError(confirmInput, 'confirmError', 'Паролі не збігаються');
+        valid = false;
+      } else {
+        setValid(confirmInput, 'confirmError');
+      }
+
+      submitBtn.disabled = !valid;
+    }
+
+    [nameInput, emailInput, passwordInput, confirmInput]
+      .forEach(input => input.addEventListener('input', validateAll));
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      serverErrors.innerHTML = '';
 
       const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify({
+          name: nameInput.value,
+          email: emailInput.value,
+          password: passwordInput.value,
+          confirmPassword: confirmInput.value
+        })
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        message.textContent = data.message;
-        message.className = 'message error';
+        const msgs = data.data?.errors?.map(e => e.msg) || [data.message];
+        serverErrors.innerHTML = msgs.map(m => `<p>${m}</p>`).join('');
         return;
       }
 
-      message.textContent = 'Реєстрація успішна';
-      message.className = 'message success';
-      setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 800);
+      window.location.href = 'index.html';
     });
   </script>
 </body>
