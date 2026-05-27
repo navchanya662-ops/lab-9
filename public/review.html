@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Залишити відгук</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="page">
+    <nav class="nav">
+      <a href="index.html">Товари</a>
+      <a href="login.html">Вхід</a>
+    </nav>
+    <section class="panel">
+      <h1>Залишити відгук</h1>
+      <div id="serverErrors"></div>
+      <form id="reviewForm">
+        <div class="field">
+          <label for="rating">Оцінка (1–5)</label>
+          <input type="number" id="rating" min="1" max="5" required>
+          <span class="field-error" id="ratingError"></span>
+        </div>
+        <div class="field">
+          <label for="comment">Коментар</label>
+          <textarea id="comment" rows="4" placeholder="Мінімум 10 символів" required></textarea>
+          <span class="field-error" id="commentError"></span>
+        </div>
+        <button type="submit" id="submitBtn" disabled>Надіслати відгук</button>
+      </form>
+      <p id="successMsg" class="message success" style="display:none">Відгук успішно додано!</p>
+    </section>
+  </main>
+  <script>
+    const API_URL = `${window.location.protocol}//${window.location.hostname}:3000`;
+
+    const params    = new URLSearchParams(window.location.search);
+    const productId = params.get('productId');
+    if (!productId) window.location.href = 'index.html';
+
+    const ratingInput  = document.getElementById('rating');
+    const commentInput = document.getElementById('comment');
+    const submitBtn    = document.getElementById('submitBtn');
+    const serverErrors = document.getElementById('serverErrors');
+
+    function validateRating() {
+      const val = Number(ratingInput.value);
+      if (!ratingInput.value) {
+        ratingInput.classList.remove('error', 'valid');
+        document.getElementById('ratingError').textContent = '';
+        return false;
+      }
+      if (val < 1 || val > 5 || !Number.isInteger(val)) {
+        ratingInput.classList.add('error');
+        ratingInput.classList.remove('valid');
+        document.getElementById('ratingError').textContent = 'Оцінка від 1 до 5 (ціле число)';
+        return false;
+      }
+      ratingInput.classList.remove('error');
+      ratingInput.classList.add('valid');
+      document.getElementById('ratingError').textContent = '';
+      return true;
+    }
+
+    function validateComment() {
+      if (!commentInput.value) {
+        commentInput.classList.remove('error', 'valid');
+        document.getElementById('commentError').textContent = '';
+        return false;
+      }
+      if (commentInput.value.trim().length < 10) {
+        commentInput.classList.add('error');
+        commentInput.classList.remove('valid');
+        document.getElementById('commentError').textContent = 'Коментар має містити мінімум 10 символів';
+        return false;
+      }
+      commentInput.classList.remove('error');
+      commentInput.classList.add('valid');
+      document.getElementById('commentError').textContent = '';
+      return true;
+    }
+
+    function updateSubmitBtn() {
+      submitBtn.disabled = !(validateRating() && validateComment());
+    }
+
+    ratingInput.addEventListener('input', updateSubmitBtn);
+    commentInput.addEventListener('input', updateSubmitBtn);
+
+    document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      serverErrors.innerHTML = '';
+
+      const response = await fetch(`${API_URL}/api/products/${productId}/reviews`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          rating: Number(ratingInput.value),
+          comment: commentInput.value
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const msgs = data.data?.errors?.map(e => e.msg) || [data.message];
+        serverErrors.innerHTML = msgs.map(m => `<p>${m}</p>`).join('');
+        return;
+      }
+
+      document.getElementById('reviewForm').style.display = 'none';
+      document.getElementById('successMsg').style.display = 'block';
+      setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+    });
+  </script>
+</body>
+</html>
